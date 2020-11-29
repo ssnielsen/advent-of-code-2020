@@ -1,0 +1,160 @@
+import * as R from 'ramda';
+
+import * as Util from '../util';
+
+type Instruction =
+    | {
+          action: 'give-value';
+          value: number;
+          receiver: number;
+      }
+    | {
+          action: 'give-chips';
+          giver: number;
+          receiverLow: 'output' | 'bot';
+          receiverHigh: 'output' | 'bot';
+          valueLow: number;
+          valueHigh: number;
+      };
+
+type Bot = {
+    history: Array<{
+        number1: number | null;
+        number2: number | null;
+    }>;
+};
+
+type State = {
+    bots: Bot[];
+    bins: number[];
+};
+
+const initialState: State = {
+    bots: [],
+    bins: [],
+};
+
+const nextBotState = (current: Bot['history'][0], value: number) => {
+    if (current.number1 === null) {
+        return {
+            number1: value,
+            number2: null,
+        };
+    } else if (current.number2 === null) {
+        return {
+            ...current,
+            number2: value,
+        };
+    } else {
+        throw Error(`Bot cannot receive a third value "${value}"`);
+    }
+};
+
+const giveBotValue = (bot: Bot, value: number) => {
+    const current = bot.history[0] || {number1: null, number2: null};
+
+    return {history: [nextBotState(current, value), ...bot.history]};
+};
+
+const giveValue = (state: State, receiver: 'output' | 'bot', value: number)
+
+const settle = (bot: number, state: State, instructions: Instruction[]) => {
+    const foundInstruction = R.find(
+        instruction =>
+            instruction.action === 'give-chips' && instruction.giver === bot,
+        instructions,
+    );
+
+    if (!foundInstruction || foundInstruction.action !== 'give-chips') {
+        throw Error('test');
+    }
+
+
+
+
+};
+
+const part1 = (instructions: Instruction[]) => {
+    const finalState = R.reduce(
+        (state, instruction) => {
+            switch (instruction.action) {
+                case 'give-value':
+                    const bot = R.pipe((bot: Bot) =>
+                        giveBotValue(bot, instruction.value),
+                    )(
+                        state.bots[instruction.receiver] || {
+                            history: [],
+                        },
+                    );
+
+                    if (
+                        bot.history[0].number1 !== null &&
+                        bot.history[0].number2 !== null
+                    ) {
+                        return settle(
+                            instruction.receiver,
+                            state,
+                            instructions,
+                        );
+                    } else {
+                        return {
+                            bots: R.update(
+                                instruction.receiver,
+                                bot,
+                                state.bots,
+                            ),
+                            bins: state.bins,
+                        };
+                    }
+                case 'give-chips':
+                    return state;
+            }
+        },
+        initialState,
+        instructions,
+    );
+
+    return 2;
+};
+
+const parseReceiver = (s: string) => {
+    switch (s) {
+        case 'bot':
+        case 'output':
+            return s;
+        default:
+            throw Error(`Unexpected input: ${s}`);
+    }
+};
+
+const parseLine = (line: string): Instruction => {
+    const splitted = line.split(' ');
+
+    switch (splitted[0]) {
+        case 'bot':
+            return {
+                action: 'give-chips',
+                giver: Number(splitted[1]),
+                receiverLow: parseReceiver(splitted[5]),
+                valueLow: Number(splitted[6]),
+                receiverHigh: parseReceiver(splitted[10]),
+                valueHigh: Number(splitted[11]),
+            };
+        case 'value':
+            return {
+                action: 'give-value',
+                value: Number(splitted[1]),
+                receiver: Number(splitted[5]),
+            };
+        default:
+            throw Error(`Unexpected input: ${line}`);
+    }
+};
+
+export const run = () => {
+    const inputData = Util.loadInput('2016-10');
+
+    const instructions = R.map(parseLine, inputData);
+
+    console.log('Part 1:', part1(instructions));
+};
