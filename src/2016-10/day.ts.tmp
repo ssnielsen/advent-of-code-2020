@@ -56,7 +56,11 @@ const giveBotValue = (bot: Bot, value: number) => {
     return {history: [nextBotState(current, value), ...bot.history]};
 };
 
-const giveValue = (state: State, receiver: 'output' | 'bot', value: number)
+const giveValue = (
+    state: State,
+    receiver: 'output' | 'bot',
+    value: number,
+) => {};
 
 const settle = (bot: number, state: State, instructions: Instruction[]) => {
     const foundInstruction = R.find(
@@ -68,10 +72,6 @@ const settle = (bot: number, state: State, instructions: Instruction[]) => {
     if (!foundInstruction || foundInstruction.action !== 'give-chips') {
         throw Error('test');
     }
-
-
-
-
 };
 
 const part1 = (instructions: Instruction[]) => {
