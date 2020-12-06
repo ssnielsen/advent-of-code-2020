@@ -5,11 +5,21 @@ import {loadRawInput} from '../util';
 type Group = string[];
 
 export const part1: (groups: Group[]) => number = R.pipe(
-    R.map(R.pipe(R.map(R.split('')), R.flatten, R.uniq, R.length)),
+    R.map(
+        R.pipe(
+            R.map(R.split('')),
+            R.flatten,
+            R.uniq,
+            R.length,
+        ),
+    ),
     R.sum,
 );
 
-const allLetters = R.split('', 'abcdefghijklmnopqrstuvwxyz');
+const allLetters = R.split(
+    '',
+    'abcdefghijklmnopqrstuvwxyz',
+);
 
 export const part2: (groups: Group[]) => number = R.pipe(
     R.map(
