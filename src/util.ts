@@ -15,3 +15,6 @@ export const loadRawInput = (day: string) =>
         (filename: string) => fs.readFileSync(filename, 'utf-8'),
         R.trim,
     )(`${__dirname}/${day}/input`);
+
+export const hasValue = <T>(thing: T | undefined | null): thing is T =>
+    Boolean(thing);
